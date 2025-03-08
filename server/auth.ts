@@ -16,6 +16,12 @@ declare global {
   }
 }
 
+// Predefined admin addresses for demo
+const ADMIN_ADDRESSES = [
+  "0x1234567890123456789012345678901234567890",
+  // Add more admin addresses as needed
+].map(addr => addr.toLowerCase());
+
 export function setupAuth(app: Express) {
   app.use(
     session({
@@ -27,22 +33,32 @@ export function setupAuth(app: Express) {
   );
 
   app.post("/api/auth/connect", async (req, res) => {
-    const { address } = req.body;
-    
+    const { address, provider } = req.body;
+
     if (!address) {
       return res.status(400).json({ message: "Address required" });
     }
 
+    // Only admins can use WalletConnect
+    if (provider === "walletconnect" && !ADMIN_ADDRESSES.includes(address.toLowerCase())) {
+      return res.status(403).json({ message: "Only admins can use WalletConnect" });
+    }
+
     let user = await storage.getUser(address);
-    
+
     if (!user) {
-      // For demo purposes, auto-create user with officer role
+      // Determine role based on address
+      const role = ADMIN_ADDRESSES.includes(address.toLowerCase()) 
+        ? UserRole.ADMIN 
+        : UserRole.OFFICER;
+
+      // Create new user with determined role
       user = await storage.createUser({
         address,
-        role: UserRole.OFFICER,
-        name: "Officer " + address.slice(0, 6),
-        department: "Police Department",
-        badgeNumber: "PD" + Math.floor(Math.random() * 10000),
+        role,
+        name: role === UserRole.ADMIN ? "Admin " : "Officer " + address.slice(0, 6),
+        department: role === UserRole.ADMIN ? "Central Bureau" : "Police Department",
+        badgeNumber: (role === UserRole.ADMIN ? "CBI" : "PD") + Math.floor(Math.random() * 10000),
       });
     }
 

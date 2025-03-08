@@ -10,55 +10,64 @@ import { useToast } from "@/hooks/use-toast";
 import { uploadEvidence, storeEvidenceOnChain } from "@/lib/web3";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2, Upload } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const uploadSchema = z.object({
   caseId: z.string().min(1, "Case ID is required"),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  file: z.any().refine((file) => file instanceof File, "Evidence file is required"),
+  file: z.instanceof(File, { message: "Evidence file is required" }),
 });
 
 type UploadFormData = z.infer<typeof uploadSchema>;
 
 export function UploadForm() {
   const { toast } = useToast();
+  const { user } = useAuth();
+
   const form = useForm<UploadFormData>({
     resolver: zodResolver(uploadSchema),
   });
 
   const uploadMutation = useMutation({
     mutationFn: async (data: UploadFormData) => {
-      // 1. Upload to IPFS
-      const ipfsHash = await uploadEvidence(data.file);
+      try {
+        // 1. Upload to IPFS
+        const ipfsHash = await uploadEvidence(data.file);
 
-      // 2. Calculate file hash
-      const fileBuffer = await data.file.arrayBuffer();
-      const fileHash = await crypto.subtle.digest('SHA-256', fileBuffer);
-      const fileHashHex = Array.from(new Uint8Array(fileHash))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+        // 2. Calculate file hash
+        const fileBuffer = await data.file.arrayBuffer();
+        const fileHash = await crypto.subtle.digest('SHA-256', fileBuffer);
+        const fileHashHex = Array.from(new Uint8Array(fileHash))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
 
-      // 3. Store on blockchain
-      const metadata = {
-        description: data.description,
-        fileName: data.file.name,
-        fileSize: data.file.size,
-        fileType: data.file.type,
-        timestamp: new Date().toISOString(),
-      };
+        // 3. Prepare metadata
+        const metadata = {
+          description: data.description,
+          fileName: data.file.name,
+          fileSize: data.file.size,
+          fileType: data.file.type,
+          timestamp: new Date().toISOString(),
+        };
 
-      const txHash = await storeEvidenceOnChain(ipfsHash, metadata);
+        // 4. Store on blockchain
+        const txHash = await storeEvidenceOnChain(ipfsHash, metadata);
 
-      // 4. Store in backend
-      const res = await apiRequest("POST", "/api/evidence", {
-        caseId: data.caseId,
-        fileHash: fileHashHex,
-        ipfsHash,
-        metadata,
-        status: "pending",
-        transactionHash: txHash,
-      });
+        // 5. Store in backend
+        const res = await apiRequest("POST", "/api/evidence", {
+          caseId: data.caseId,
+          fileHash: fileHashHex,
+          ipfsHash,
+          metadata,
+          status: "pending",
+          transactionHash: txHash,
+        });
 
-      return res.json();
+        return res.json();
+      } catch (error) {
+        console.error('Upload error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -76,6 +85,14 @@ export function UploadForm() {
       });
     },
   });
+
+  if (!user || (user.role !== "admin" && user.role !== "officer")) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-red-500">You do not have permission to upload evidence.</p>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>

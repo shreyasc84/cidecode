@@ -24,7 +24,18 @@ export const evidence = pgTable("evidence", {
 });
 
 export const insertUserSchema = createInsertSchema(users);
-export const insertEvidenceSchema = createInsertSchema(evidence);
+
+// Custom evidence schema with proper validation
+export const insertEvidenceSchema = createInsertSchema(evidence).extend({
+  metadata: z.object({
+    description: z.string().min(10, "Description must be at least 10 characters"),
+    fileName: z.string().min(1, "File name is required"),
+    fileSize: z.number().min(1, "File size must be greater than 0"),
+    fileType: z.string().min(1, "File type is required"),
+    timestamp: z.string().datetime(),
+  }),
+  status: z.enum(["pending", "approved", "rejected"]).default("pending"),
+});
 
 export type User = typeof users.$inferSelect;
 export type Evidence = typeof evidence.$inferSelect;
@@ -38,3 +49,11 @@ export const UserRole = {
 } as const;
 
 export type UserRole = typeof UserRole[keyof typeof UserRole];
+
+export const EvidenceStatus = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+} as const;
+
+export type EvidenceStatus = typeof EvidenceStatus[keyof typeof EvidenceStatus];
