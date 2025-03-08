@@ -38,7 +38,11 @@ export class MemStorage implements IStorage {
   }
 
   async createEvidence(evidence: InsertEvidence): Promise<Evidence> {
-    const newEvidence = { ...evidence, id: this.currentId++ };
+    const newEvidence = { 
+      ...evidence, 
+      id: this.currentId++,
+      createdAt: new Date() 
+    };
     this.evidence.set(newEvidence.id, newEvidence);
     return newEvidence;
   }

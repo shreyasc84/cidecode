@@ -29,6 +29,17 @@ export function EvidenceCard({ evidence, onViewDetails }: EvidenceCardProps) {
     }
   };
 
+  // Format the date safely
+  const formatDate = (dateString: string | Date) => {
+    try {
+      const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+      return format(date, 'MMM dd, yyyy HH:mm');
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return 'Invalid date';
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -53,7 +64,7 @@ export function EvidenceCard({ evidence, onViewDetails }: EvidenceCardProps) {
             <span>IPFS: {evidence.ipfsHash.slice(0, 10)}...</span>
           </div>
           <p className="text-sm">
-            Submitted on: {format(new Date(evidence.createdAt), 'MMM dd, yyyy HH:mm')}
+            Submitted on: {formatDate(evidence.createdAt)}
           </p>
         </div>
       </CardContent>
