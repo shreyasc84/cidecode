@@ -15,14 +15,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       console.log("Validating evidence data:", req.body);
-      const evidence = insertEvidenceSchema.parse(req.body);
-
-      // Ensure the submitter matches the authenticated user
-      if (evidence.submittedBy !== req.user.address) {
-        return res.status(403).json({ 
-          message: "Evidence submitter must match authenticated user" 
-        });
-      }
+      const evidence = insertEvidenceSchema.parse({
+        ...req.body,
+        submittedBy: req.user.address
+      });
 
       const result = await storage.createEvidence(evidence);
       console.log("Evidence created successfully:", result);
@@ -35,7 +31,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           errors: error.errors 
         });
       }
-      res.status(400).json({ message: "Invalid evidence data" });
+      res.status(500).json({ message: "Error creating evidence" });
     }
   });
 

@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileBox, Link as LinkIcon, Clock, CheckCircle2, XCircle, Brain, AlertTriangle } from "lucide-react";
-import { format } from "date-fns";
 import { analyzeEvidence, type AIAnalysisResult } from "@/lib/ai-analysis";
 
 interface EvidenceCardProps {
@@ -49,8 +48,7 @@ export function EvidenceCard({ evidence, onViewDetails }: EvidenceCardProps) {
   // Format the date safely
   const formatDate = (dateString: string | Date) => {
     try {
-      const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-      return format(date, 'MMM dd, yyyy HH:mm');
+      return new Date(dateString).toLocaleString();
     } catch (error) {
       console.error('Date formatting error:', error);
       return 'Invalid date';
@@ -90,7 +88,7 @@ export function EvidenceCard({ evidence, onViewDetails }: EvidenceCardProps) {
               <span>IPFS: {evidence.ipfsHash.slice(0, 10)}...</span>
             </div>
             <p className="text-sm">
-              Submitted on: {formatDate(evidence.createdAt)}
+              Submitted: {formatDate(evidence.createdAt)}
             </p>
           </div>
 

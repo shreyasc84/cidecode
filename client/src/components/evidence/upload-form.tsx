@@ -31,6 +31,8 @@ export function UploadForm() {
   const uploadMutation = useMutation({
     mutationFn: async (data: UploadFormData) => {
       try {
+        if (!user) throw new Error("User not authenticated");
+
         // 1. Upload to IPFS
         const ipfsHash = await uploadEvidence(data.file);
         console.log("IPFS upload complete:", ipfsHash);
@@ -61,7 +63,6 @@ export function UploadForm() {
         console.log("Submitting to backend...");
         const requestData = {
           caseId: data.caseId,
-          submittedBy: user!.address,
           fileHash: fileHashHex,
           ipfsHash,
           metadata,
