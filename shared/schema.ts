@@ -8,11 +8,7 @@ export const users = pgTable("users", {
   role: text("role").notNull(),
   name: text("name").notNull(),
   department: text("department").notNull(),
-  badgeNumber: text("badge_number"),
-  email: text("email"),
-  registrationDate: timestamp("registration_date").notNull().defaultNow(),
-  lastLogin: timestamp("last_login"),
-  isRegistered: boolean("is_registered").default(false),
+  badgeNumber: text("badge_number").notNull(),
 });
 
 export const evidence = pgTable("evidence", {
@@ -25,13 +21,9 @@ export const evidence = pgTable("evidence", {
   status: text("status").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   transactionHash: text("transaction_hash"),
-  aiAnalysis: jsonb("ai_analysis"),
-  assignedTo: text("assigned_to"),
-  priority: text("priority").default("medium"),
-  tags: text("tags").array(),
-  reviewedBy: text("reviewed_by"),
-  reviewDate: timestamp("review_date"),
 });
+
+export const insertUserSchema = createInsertSchema(users);
 
 // Metadata schema for evidence
 const evidenceMetadataSchema = z.object({
@@ -40,19 +32,6 @@ const evidenceMetadataSchema = z.object({
   fileSize: z.number().min(1, "File size must be greater than 0"),
   fileType: z.string().min(1, "File type is required"),
   timestamp: z.string(),
-  location: z.string().optional(),
-  deviceInfo: z.string().optional(),
-  additionalNotes: z.string().optional(),
-});
-
-// AI analysis schema
-const aiAnalysisSchema = z.object({
-  summary: z.string(),
-  riskLevel: z.enum(["low", "medium", "high"]),
-  keywords: z.array(z.string()),
-  recommendations: z.array(z.string()),
-  relatedCases: z.array(z.string()).optional(),
-  confidenceScore: z.number().min(0).max(1),
 });
 
 // Evidence insert schema with proper validation
@@ -64,8 +43,6 @@ export const insertEvidenceSchema = z.object({
   metadata: evidenceMetadataSchema,
   status: z.enum(["pending", "approved", "rejected"]).default("pending"),
   transactionHash: z.string().nullable(),
-  priority: z.enum(["low", "medium", "high"]).default("medium"),
-  tags: z.array(z.string()).optional(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -75,8 +52,8 @@ export type InsertEvidence = z.infer<typeof insertEvidenceSchema>;
 
 export const UserRole = {
   ADMIN: "admin",
+  CBI: "cbi",
   OFFICER: "officer",
-  PUBLIC: "public",
 } as const;
 
 export type UserRole = typeof UserRole[keyof typeof UserRole];
@@ -88,8 +65,3 @@ export const EvidenceStatus = {
 } as const;
 
 export type EvidenceStatus = typeof EvidenceStatus[keyof typeof EvidenceStatus];
-
-export const insertUserSchema = createInsertSchema(users).extend({
-  role: z.enum([UserRole.ADMIN, UserRole.OFFICER, UserRole.PUBLIC]),
-  email: z.string().email().optional(),
-});
