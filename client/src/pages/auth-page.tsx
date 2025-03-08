@@ -1,11 +1,28 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield } from "lucide-react";
 import { Redirect } from "wouter";
+import { RegistrationDialog } from "@/components/auth/registration-dialog";
 
 export default function AuthPage() {
   const { user, connectWithMetaMask, isLoading } = useAuth();
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
+
+  const handleConnect = async () => {
+    try {
+      await connectWithMetaMask();
+    } catch (error: any) {
+      if (error.message.includes("needsRegistration")) {
+        // Extract wallet address from error response
+        const address = error.message.split('"address":"')[1]?.split('"')[0];
+        setWalletAddress(address);
+        setShowRegistration(true);
+      }
+    }
+  };
 
   if (user) {
     return <Redirect to="/" />;
@@ -27,7 +44,7 @@ export default function AuthPage() {
           <Button 
             className="w-full" 
             size="lg"
-            onClick={() => connectWithMetaMask()}
+            onClick={handleConnect}
             disabled={isLoading}
           >
             Connect with MetaMask
@@ -37,6 +54,12 @@ export default function AuthPage() {
           </p>
         </CardContent>
       </Card>
+
+      <RegistrationDialog
+        isOpen={showRegistration}
+        onClose={() => setShowRegistration(false)}
+        address={walletAddress}
+      />
     </div>
   );
 }
