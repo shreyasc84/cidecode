@@ -8,8 +8,15 @@ import { useToast } from "@/hooks/use-toast";
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
-  connectWithMetaMask: () => Promise<void>;
+  connectWithMetaMask: (registration?: RegistrationData) => Promise<void>;
   logout: () => Promise<void>;
+};
+
+type RegistrationData = {
+  name: string;
+  department: string;
+  badgeNumber?: string;
+  email?: string;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -31,17 +38,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const connectMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (registration?: RegistrationData) => {
       const address = await connectWallet();
-      const res = await apiRequest("POST", "/api/auth/connect", { address });
+      const res = await apiRequest("POST", "/api/auth/connect", { 
+        address,
+        registration 
+      });
       return res.json();
     },
-    onSuccess: (user: User) => {
-      queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Connected successfully",
-        description: `Welcome ${user.name}`,
-      });
+    onSuccess: (response) => {
+      if (response.needsRegistration) {
+        toast({
+          title: "Registration Required",
+          description: "Please complete your registration to continue",
+        });
+        // You can trigger a registration modal/form here
+      } else {
+        queryClient.setQueryData(["/api/user"], response);
+        toast({
+          title: "Connected successfully",
+          description: `Welcome ${response.name}`,
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
@@ -69,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user: user || null,
         isLoading,
-        connectWithMetaMask: () => connectMutation.mutateAsync(),
+        connectWithMetaMask: (registration) => connectMutation.mutateAsync(registration),
         logout: () => logoutMutation.mutateAsync(),
       }}
     >
