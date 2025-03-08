@@ -9,6 +9,8 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   createEvidence(evidence: InsertEvidence): Promise<Evidence>;
   getEvidence(user: User): Promise<Evidence[]>;
+  updateEvidence(id: number, updates: Partial<Evidence>): Promise<Evidence>;
+  deleteEvidence(id: number): Promise<void>;
   sessionStore: session.Store;
 }
 
@@ -52,6 +54,31 @@ export class MemStorage implements IStorage {
       if (user.role === "admin" || user.role === "cbi") return true;
       return e.submittedBy === user.address;
     });
+  }
+
+  async updateEvidence(id: number, updates: Partial<Evidence>): Promise<Evidence> {
+    const evidence = this.evidence.get(id);
+    if (!evidence) {
+      throw new Error("Evidence not found");
+    }
+
+    const updatedEvidence = {
+      ...evidence,
+      ...updates,
+      id, // Ensure ID doesn't change
+      submittedBy: evidence.submittedBy, // Protect submitter
+      createdAt: evidence.createdAt, // Protect creation date
+    };
+
+    this.evidence.set(id, updatedEvidence);
+    return updatedEvidence;
+  }
+
+  async deleteEvidence(id: number): Promise<void> {
+    if (!this.evidence.has(id)) {
+      throw new Error("Evidence not found");
+    }
+    this.evidence.delete(id);
   }
 }
 

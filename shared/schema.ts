@@ -49,6 +49,7 @@ export type User = typeof users.$inferSelect;
 export type Evidence = typeof evidence.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertEvidence = z.infer<typeof insertEvidenceSchema>;
+export type EvidenceMetadata = z.infer<typeof evidenceMetadataSchema>;
 
 export const UserRole = {
   ADMIN: "admin",
