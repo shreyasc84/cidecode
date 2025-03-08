@@ -25,16 +25,24 @@ export const evidence = pgTable("evidence", {
 
 export const insertUserSchema = createInsertSchema(users);
 
-// Custom evidence schema with proper validation
-export const insertEvidenceSchema = createInsertSchema(evidence).extend({
-  metadata: z.object({
-    description: z.string().min(10, "Description must be at least 10 characters"),
-    fileName: z.string().min(1, "File name is required"),
-    fileSize: z.number().min(1, "File size must be greater than 0"),
-    fileType: z.string().min(1, "File type is required"),
-    timestamp: z.string().datetime(),
-  }),
+// Metadata schema for evidence
+const evidenceMetadataSchema = z.object({
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  fileName: z.string().min(1, "File name is required"),
+  fileSize: z.number().min(1, "File size must be greater than 0"),
+  fileType: z.string().min(1, "File type is required"),
+  timestamp: z.string(),
+});
+
+// Evidence insert schema with proper validation
+export const insertEvidenceSchema = z.object({
+  caseId: z.string().min(1, "Case ID is required"),
+  submittedBy: z.string().min(1, "Submitter address is required"),
+  fileHash: z.string().min(1, "File hash is required"),
+  ipfsHash: z.string().min(1, "IPFS hash is required"),
+  metadata: evidenceMetadataSchema,
   status: z.enum(["pending", "approved", "rejected"]).default("pending"),
+  transactionHash: z.string().nullable(),
 });
 
 export type User = typeof users.$inferSelect;

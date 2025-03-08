@@ -33,6 +33,7 @@ export function UploadForm() {
       try {
         // 1. Upload to IPFS
         const ipfsHash = await uploadEvidence(data.file);
+        console.log("IPFS upload complete:", ipfsHash);
 
         // 2. Calculate file hash
         const fileBuffer = await data.file.arrayBuffer();
@@ -40,6 +41,7 @@ export function UploadForm() {
         const fileHashHex = Array.from(new Uint8Array(fileHash))
           .map(b => b.toString(16).padStart(2, '0'))
           .join('');
+        console.log("File hash calculated:", fileHashHex);
 
         // 3. Prepare metadata
         const metadata = {
@@ -51,18 +53,24 @@ export function UploadForm() {
         };
 
         // 4. Store on blockchain
+        console.log("Storing on blockchain...");
         const txHash = await storeEvidenceOnChain(ipfsHash, metadata);
+        console.log("Blockchain storage complete:", txHash);
 
         // 5. Store in backend
-        const res = await apiRequest("POST", "/api/evidence", {
+        console.log("Submitting to backend...");
+        const requestData = {
           caseId: data.caseId,
+          submittedBy: user!.address,
           fileHash: fileHashHex,
           ipfsHash,
           metadata,
           status: "pending",
           transactionHash: txHash,
-        });
+        };
+        console.log("Request data:", requestData);
 
+        const res = await apiRequest("POST", "/api/evidence", requestData);
         return res.json();
       } catch (error) {
         console.error('Upload error:', error);
@@ -78,6 +86,7 @@ export function UploadForm() {
       queryClient.invalidateQueries({ queryKey: ["/api/evidence"] });
     },
     onError: (error: Error) => {
+      console.error("Upload mutation error:", error);
       toast({
         title: "Upload failed",
         description: error.message,
