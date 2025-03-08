@@ -1,0 +1,132 @@
+🚀 Ultimate AI Prompt: JusticeChain - Web3 Evidence Tracking & Crime Detection System
+
+“Build a full-stack Web3 application called ‘JusticeChain’ that enables law enforcement to securely track digital evidence using Ethereum’s Sepolia testnet. Users should connect via MetaMask, upload evidence files, store metadata on the blockchain, and conduct AI-powered crime detection to analyze malicious activities and patterns in criminal investigations.”
+
+⸻
+
+📌 1️⃣ Tech Stack & Core Features
+
+Frontend: Advanced Web3 UI & Dashboard
+
+✅ React.js + Next.js for a modern single-page application (SPA).
+✅ Tailwind CSS + Material UI for a sleek law-enforcement theme UI.
+✅ Web3Modal + ethers.js for seamless MetaMask authentication & blockchain transactions.
+✅ Dynamic Role-Based Navigation (React Router) for personalized user dashboards.
+
+⸻
+
+Backend: Secure API, AI Crime Analysis, & Blockchain Connectivity
+
+✅ Node.js + Express.js for backend API & authentication services.
+✅ MongoDB (optional) or Firebase for off-chain metadata storage.
+✅ Python (FastAPI or Flask) for AI-powered crime detection models.
+✅ Hardhat + Solidity smart contracts deployed on Sepolia Testnet.
+
+⸻
+
+Blockchain: Sepolia Testnet Transactions & Smart Contracts
+
+✅ Ethereum Sepolia as the main blockchain for evidence transactions.
+✅ ERC-20 test tokens used for evidence submission fees or access control.
+✅ Smart contracts for role-based access & chain-of-custody verification.
+✅ All user actions are logged on-chain to ensure data integrity & security.
+
+⸻
+
+📌 2️⃣ User Roles & Permissions
+
+Role	Authentication	Permissions
+Admin (Police)	MetaMask (Sepolia)	Manage users, approve/reject evidence, assign roles, track cases, analyze crimes.
+CBI Branch (High-Level Access)	MetaMask (Sepolia)	Full access to all evidence, transactions, and AI reports.
+User (Uploader - Investigating Officer)	MetaMask (Sepolia)	Upload evidence, view personal submissions, perform AI crime analysis.
+Public Viewer	No login required	View encoded evidence metadata only (hashed data).
+
+✅ Role-based restrictions ensure only authorized users access sensitive data.
+
+⸻
+
+📌 3️⃣ Detailed Functional Features
+
+🔹 1️⃣ MetaMask Authentication (Sepolia Testnet)
+
+✅ Users connect their MetaMask wallet to access the system.
+✅ All transactions require Sepolia test tokens (ETH) for gas fees.
+✅ React.js handles login/logout state & wallet authentication dynamically.
+
+⸻
+
+🔹 2️⃣ Secure Evidence Submission & Blockchain Storage
+
+✅ Users upload PDFs, images, and videos as digital evidence.
+✅ Each file is securely stored in IPFS with a SHA-256 hash for integrity verification.
+✅ Smart contracts store metadata (Case ID, timestamps, IPFS hash, officer details) on the Ethereum blockchain.
+✅ Admins & CBI can approve or reject evidence through Web3 smart contract functions.
+
+⸻
+
+🔹 3️⃣ Smart Contracts for Chain of Custody Tracking
+
+✅ Solidity smart contracts will handle:
+	•	Evidence submission, modification restrictions, and approvals.
+	•	Immutable logs of every transaction related to a case.
+	•	JST token staking system to verify and approve evidence.
+✅ Automatic Role-Based Access:
+	•	Only Admins and CBI can manage case approvals.
+	•	Investigating Officers can only submit and view their own cases.
+
+⸻
+
+🔹 4️⃣ AI-Powered Crime Detection & Investigation Analysis
+
+✅ AI models analyze digital evidence patterns, metadata, and historical cases.
+✅ Machine learning flags suspicious activity based on:
+	•	Location-based crime clustering (heatmaps of high-crime zones).
+	•	Repeated offender pattern detection (matching suspects with past evidence).
+	•	Fake evidence detection (analyzing metadata inconsistencies).
+✅ Admins and CBI Officers can view AI-generated reports for faster case resolutions.
+
+⸻
+
+🔹 5️⃣ Web3 Dashboard for Case Management & Tracking
+
+✅ Live Case Tracker → Shows uploaded evidence, status updates, and blockchain logs.
+✅ Role-Based Evidence Viewing → Only assigned officers can access specific data.
+✅ Interactive AI Analytics → Crime heatmaps, AI-detected anomalies, and fraud detection alerts.
+✅ IPFS File Viewer → Allows access to stored evidence files in a secure, decentralized manner.
+
+⸻
+
+📌 4️⃣ Deployment & Integration Steps
+
+1️⃣ Download & Install Dependencies
+
+npm install
+
+2️⃣ Start the Web3 Frontend
+
+npm run dev
+
+3️⃣ Deploy Smart Contracts to Sepolia
+
+cd contracts
+npx hardhat compile
+npx hardhat run scripts/deploy.js --network sepolia
+
+4️⃣ Start the Backend & AI Services
+
+node backend/server.js
+python ai_model/detect_crimes.py
+
+5️⃣ Connect MetaMask to Sepolia Testnet
+	•	Network Name: Ethereum Sepolia
+	•	New RPC URL: https://rpc.sepolia.org/
+	•	Chain ID: 11155111
+	•	Currency Symbol: ETH
+
+✅ The app is now fully functional with test tokens & blockchain integration!
+
+⸻
+
+🚀 JusticeChain: The Most Advanced Web3 Evidence & Crime Tracking System
+
+🔥 This AI-generated prompt ensures a fully functional Web3 evidence tracking platform with blockchain security & AI-powered crime detection. 🚀
